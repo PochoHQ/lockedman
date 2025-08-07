@@ -49,61 +49,36 @@ function getClientInfo(req) {
 // Ruta para generar y descargar el PDF hexadecimal
 app.get('/download-hex-pdf', (req, res) => {
     const clientInfo = getClientInfo(req);
-    console.log('📄 Descarga de PDF hex solicitada desde:', clientInfo.ip);
+    const hexContent = generateRandomHex(3000);
     
-    // Crear un nuevo documento PDF
-    const doc = new PDFDocument({
-        size: 'A4',
-        margins: { top: 50, bottom: 50, left: 50, right: 50 }
-    });
+    // Crear el PDF
+    const doc = new PDFDocument();
     
-    // Configurar headers para descarga con nombre súper raro
+    // Configurar headers para descarga
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="xX_D4rK_H3x_M4tr1x_Ul7r4_S3cr3t_D0cum3nt_2024_Xx.pdf"');
     
-    // Pipe del documento al response
+    // Pipe del PDF a la respuesta
     doc.pipe(res);
     
-    // Título del documento
-    doc.fontSize(16)
-       .font('Helvetica-Bold')
-       .text('🔒 DATOS HEXADECIMALES CLASIFICADOS', { align: 'center' })
-       .moveDown();
-    
-    doc.fontSize(12)
-       .font('Helvetica')
-       .text('⚠️ ACCESO RESTRINGIDO - SOLO PERSONAL AUTORIZADO', { align: 'center' })
-       .moveDown(2);
-    
-    // Generar contenido hexadecimal
-    const hexContent = generateRandomHex(3000);
-    
-    doc.fontSize(8)
-       .font('Courier')
-       .text('INICIO DE TRANSMISIÓN HEXADECIMAL:', { continued: false })
-       .moveDown()
-       .text('═'.repeat(70))
-       .moveDown()
-       .text(hexContent)
-       .moveDown()
-       .text('═'.repeat(70))
-       .moveDown()
-       .text('FIN DE TRANSMISIÓN')
-       .moveDown(2);
-    
-    // Información adicional misteriosa
+    // Contenido del PDF
     doc.fontSize(10)
-       .font('Helvetica')
-       .text('🕐 Timestamp de acceso: ' + new Date().toISOString())
-       .text('🌐 IP de origen: ' + clientInfo.ip)
-       .text('🔑 Hash de sesión: ' + Math.random().toString(36).substring(2, 15).toUpperCase())
-       .text('📡 Protocolo: HEX-TRANSFER-v2.1')
-       .moveDown()
-       .fontSize(8)
-       .text('NOTA: Este documento contiene información codificada.', { align: 'center' })
-       .text('Para decodificar, utilice el algoritmo ROT13 + Base64.', { align: 'center' });
+       .font('Courier')
+       .text('=== DOCUMENTO ULTRA SECRETO ===', 50, 50)
+       .text('Generado automáticamente', 50, 70)
+       .text(`Timestamp: ${clientInfo.timestamp}`, 50, 90)
+       .text(`IP: ${clientInfo.ip}`, 50, 110)
+       .text(`User-Agent: ${clientInfo.userAgent}`, 50, 130)
+       .text('\n=== CONTENIDO HEXADECIMAL MISTERIOSO ===\n', 50, 160)
+       .text(hexContent, 50, 190, {
+           width: 500,
+           align: 'left'
+       })
+       .text('\n\n=== FIN DEL DOCUMENTO ===', 50, 600)
+       .text('¿Puedes descifrar el mensaje oculto?', 50, 620)
+       .text('Pista: No todo es lo que parece...', 50, 640);
     
-    // Finalizar el documento
+    // Finalizar el PDF
     doc.end();
 });
 
@@ -118,38 +93,35 @@ app.get('/api/client-info', (req, res) => {
     res.json(clientInfo);
 });
 
-// Ruta de "login" falso
+// Ruta de login falso
 app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
     const clientInfo = getClientInfo(req);
-    console.log('Intento de login:', req.body, 'desde:', clientInfo.ip);
     
     res.json({
         success: false,
-        message: '¡Acceso denegado! Pero gracias por intentarlo 😉',
-        clientInfo: clientInfo
+        message: '¡Acceso denegado! ¿Creías que sería tan fácil?',
+        attempts: Math.floor(Math.random() * 1000) + 1,
+        yourInfo: clientInfo
     });
 });
 
-// Ruta de "admin" falsa
+// Ruta "admin" falsa
 app.get('/admin', (req, res) => {
     const clientInfo = getClientInfo(req);
-    console.log('Acceso a /admin desde:', clientInfo.ip);
     
     res.json({
-        message: '🚫 Área restringida detectada',
+        error: 'Acceso no autorizado',
+        message: '🚨 INTENTO DE ACCESO DETECTADO 🚨',
+        status: 'BLOQUEADO',
         warning: 'Este acceso ha sido registrado',
         yourInfo: clientInfo
     });
 });
 
-// Para desarrollo local
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
-        console.log('🔒 Sistema de seguridad activado');
-        console.log('⚠️  Solo para pruebas éticas');
-    });
-}
-
-// Para Vercel (serverless)
-module.exports = app;
+// Iniciar servidor
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
+    console.log('🔒 Sistema de seguridad activado');
+    console.log('⚠️  Solo para pruebas éticas');
+});
