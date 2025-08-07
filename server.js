@@ -142,8 +142,14 @@ app.get('/admin', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
-    console.log('💡 Aplicación de testing lista para ser "hackeada"');
-    console.log('📄 PDF hexadecimal disponible en /download-hex-pdf');
-});
+// Para desarrollo local
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
+        console.log('🔒 Sistema de seguridad activado');
+        console.log('⚠️  Solo para pruebas éticas');
+    });
+}
+
+// Para Vercel (serverless)
+module.exports = app;
